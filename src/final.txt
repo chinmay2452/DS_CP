@@ -1,0 +1,6 @@
+USERS 4
+1|chinmay|games,coding,ai
+2|punyesh|
+3|amber|
+4|karan|
+EDGES

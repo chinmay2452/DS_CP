@@ -1,0 +1,48 @@
+USERS 15
+1|chinmay
+2|karan
+3|punyesh
+4|amber
+5|narayani
+6|radhika
+7|shalvi
+8|laukika
+9|sarvesh
+10|pratham
+11|diya
+12|rohan
+13|mira
+14|dev
+15|aarya
+EDGES
+1 2
+1 3
+1 4
+1 5
+2 3
+2 6
+2 7
+3 4
+3 8
+4 5
+4 6
+5 7
+5 8
+6 9
+6 10
+7 9
+7 11
+8 10
+8 12
+9 13
+10 13
+10 14
+11 14
+11 15
+12 14
+12 15
+13 15
+9 15
+5 11
+3 10
+2 9

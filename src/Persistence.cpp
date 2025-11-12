@@ -2,20 +2,23 @@
 #include "CoreGraph.h"
 #include <fstream>
 #include <sstream>
+#include <iostream>
 
 Persistence::Persistence(CoreGraph *g) : graph(g) {
     rebuildNameIndex();
 }
 
+// Escape reserved characters
 std::string Persistence::escape(const std::string &s) {
     std::string out;
     for (char c : s) {
-        if (c == '|' || c == '\\') out.push_back('\\');
+        if (c == '|' || c == '\\' || c == ',') out.push_back('\\');
         out.push_back(c);
     }
     return out;
 }
 
+// Unescape reserved characters
 std::string Persistence::unescape(const std::string &s) {
     std::string out;
     bool esc = false;
@@ -27,6 +30,14 @@ std::string Persistence::unescape(const std::string &s) {
     return out;
 }
 
+// =============================================================
+// SAVE TO FILE
+// Format:
+// USERS <count>
+// id|name|interest1,interest2,...
+// EDGES
+// u v
+// =============================================================
 bool Persistence::saveToFile(const std::string &filename) {
     if (!graph) return false;
     std::ofstream ofs(filename);
@@ -37,8 +48,18 @@ bool Persistence::saveToFile(const std::string &filename) {
     for (int id : ids) {
         const User* u = graph->getUser(id);
         if (!u) continue;
-        ofs << id << "|" << escape(u->name) << "\n";
+        ofs << id << "|" << escape(u->name) << "|";
+
+        // Save interests (comma-separated)
+        bool first = true;
+        for (auto &intr : u->interests) {
+            if (!first) ofs << ",";
+            ofs << escape(intr);
+            first = false;
+        }
+        ofs << "\n";
     }
+
     ofs << "EDGES\n";
     auto adj = graph->getAdjacency();
     for (auto &kv : adj) {
@@ -47,10 +68,15 @@ bool Persistence::saveToFile(const std::string &filename) {
             if (u < v) ofs << u << " " << v << "\n";
         }
     }
+
     ofs.close();
     return true;
 }
 
+// =============================================================
+// LOAD FROM FILE
+// Compatible with old files (without interests)
+// =============================================================
 bool Persistence::loadFromFile(const std::string &filename) {
     if (!graph) return false;
     std::ifstream ifs(filename);
@@ -58,6 +84,8 @@ bool Persistence::loadFromFile(const std::string &filename) {
 
     graph->clear();
     std::string line;
+
+    // USERS section
     if (!std::getline(ifs, line)) return false;
     std::stringstream ss(line);
     std::string tag;
@@ -67,29 +95,53 @@ bool Persistence::loadFromFile(const std::string &filename) {
 
     for (int i = 0; i < userCount; ++i) {
         if (!std::getline(ifs, line)) return false;
-        size_t pos = line.find('|');
-        if (pos == std::string::npos) return false;
-        int id = std::stoi(line.substr(0, pos));
-        std::string name = unescape(line.substr(pos + 1));
+
+        size_t pos1 = line.find('|');
+        if (pos1 == std::string::npos) return false;
+        size_t pos2 = line.find('|', pos1 + 1);
+
+        int id = std::stoi(line.substr(0, pos1));
+        std::string name;
+        std::string interestStr;
+
+        // Handle both old and new formats
+        if (pos2 == std::string::npos) {
+            name = unescape(line.substr(pos1 + 1));
+        } else {
+            name = unescape(line.substr(pos1 + 1, pos2 - pos1 - 1));
+            interestStr = line.substr(pos2 + 1);
+        }
+
         graph->addUser(name, id);
+
+        // Add interests (if available)
+        if (!interestStr.empty()) {
+            std::stringstream ss2(interestStr);
+            std::string intr;
+            while (std::getline(ss2, intr, ',')) {
+                if (!intr.empty()) graph->addInterest(id, unescape(intr));
+            }
+        }
     }
 
+    // EDGES section
     if (!std::getline(ifs, line)) return false;
     if (line != "EDGES") return false;
 
     while (std::getline(ifs, line)) {
-        if (line.size() == 0) continue;
+        if (line.empty()) continue;
         std::stringstream ss2(line);
         int u, v;
-        if (ss2 >> u >> v) {
-            graph->addFriend(u, v);
-        }
+        if (ss2 >> u >> v) graph->addFriend(u, v);
     }
 
     rebuildNameIndex();
     return true;
 }
 
+// =============================================================
+// Rebuild in-memory name index
+// =============================================================
 void Persistence::rebuildNameIndex() {
     nameIndex.clear();
     if (!graph) return;
@@ -101,6 +153,9 @@ void Persistence::rebuildNameIndex() {
     }
 }
 
+// =============================================================
+// Lookup user ID by name
+// =============================================================
 int Persistence::findUserIdByName(const std::string &name) {
     auto it = nameIndex.find(name);
     if (it == nameIndex.end()) return -1;

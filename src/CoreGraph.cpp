@@ -20,6 +20,25 @@ bool CoreGraph::addUser(const std::string &name, int fixedId) {
     return true;
 }
 
+bool CoreGraph::addInterest(int id, const std::string &interest) {
+    auto it = users.find(id);
+    if (it == users.end()) return false;
+    std::string lower = interest;
+    std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
+    it->second.interests.insert(lower);
+    return true;
+}
+
+bool CoreGraph::addInterests(int id, const std::vector<std::string> &interests) {
+    auto it = users.find(id);
+    if (it == users.end()) return false;
+
+    for (const auto &i : interests) {
+        addInterest(id, i);
+    }
+    return true;
+}
+
 bool CoreGraph::removeUser(int id) {
     if (users.find(id) == users.end()) return false;
     // remove id from neighbors
@@ -98,5 +117,22 @@ void CoreGraph::printUser(int id) const {
     std::cout << "User(" << u->id << ", " << u->name << ") Friends: ";
     auto f = getFriends(id);
     for (int fid : f) std::cout << fid << " ";
+    std::cout << "\n";
+}
+
+void CoreGraph::printInterests(int id) const {
+    const User* u = getUser(id);
+    if (!u) {
+        std::cout << "User not found\n";
+        return;
+    }
+    if (u->interests.empty()) {
+        std::cout << "No interests found for user " << u->name << "\n";
+        return;
+    }
+
+    std::cout << "Interests of " << u->name << ": ";
+    for (const auto &i : u->interests)
+        std::cout << i << " ";
     std::cout << "\n";
 }

@@ -10,16 +10,17 @@ void printMenu() {
     std::cout << "\n========== Social Network CLI ==========\n"
               << "1. Add User\n"
               << "2. Add Friend\n"
-              << "3. Recommend Friends (Mutual)\n"
-              << "4. Recommend Friends (Weighted)\n"
-              << "5. Save Network\n"
-              << "6. Load Network\n"
-              << "7. Show Communities\n"
-              << "8. Shortest Path\n"
-              << "9. Export DOT File\n"
-              << "10. Suggest Username by Prefix\n"
-              << "11. Print User Info\n"
-              << "12. Help (Show Commands)\n"
+              << "3. Add Interests\n"
+              << "4. Show User Interests\n"
+              << "5. Recommend Friends (Mutual)\n"
+              << "6. Recommend Friends (Weighted)\n"
+              << "7. Save Network\n"
+              << "8. Load Network\n"
+              << "9. Show Communities\n"
+              << "10. Shortest Path\n"
+              << "11. Export DOT File\n"
+              << "12. Suggest Username by Prefix\n"
+              << "13. Print User Info\n"
               << "0. Exit\n"
               << "========================================\n"
               << "Enter choice: ";
@@ -33,7 +34,7 @@ int main() {
     Tools tools(&graph);
 
     int choice;
-    std::cout << "Welcome to Social Network CLI!\n";
+    std::cout << "Welcome to FriendFinder Social Network CLI!\n";
 
     while (true) {
         printMenu();
@@ -55,55 +56,104 @@ int main() {
                 std::cout << "Added user " << name << " with ID " << id << "\n";
                 break;
             }
+
             case 2: { // Add Friend
                 int a, b;
                 std::cout << "Enter two user IDs: ";
                 std::cin >> a >> b;
-                if (graph.addFriend(a, b)) std::cout << "Friendship added!\n";
-                else std::cout << "Failed to add friendship.\n";
+                if (graph.addFriend(a, b))
+                    std::cout << "Friendship added successfully!\n";
+                else
+                    std::cout << "Failed to add friendship.\n";
                 break;
             }
-            case 3: { // Recommend mutual
+
+            case 3: { // Add Interests
+                int id;
+                std::cout << "Enter user ID: ";
+                std::cin >> id;
+                std::cin.ignore();
+                std::string line;
+                std::cout << "Enter comma-separated interests (e.g. AI, coding, music): ";
+                std::getline(std::cin, line);
+                std::stringstream ss(line);
+                std::string interest;
+                std::vector<std::string> interests;
+                while (std::getline(ss, interest, ',')) {
+                    // Trim spaces
+                    interest.erase(0, interest.find_first_not_of(" \t"));
+                    interest.erase(interest.find_last_not_of(" \t") + 1);
+                    interests.push_back(interest);
+                }
+                graph.addInterests(id, interests);
+                std::cout << "Interests added successfully.\n";
+                break;
+            }
+
+            case 4: { // Show Interests
+                int id;
+                std::cout << "Enter user ID: ";
+                std::cin >> id;
+                graph.printInterests(id);
+                break;
+            }
+
+            case 5: { // Recommend Mutual
                 int id, k;
                 std::cout << "Enter user ID and top K: ";
                 std::cin >> id >> k;
                 auto recs = recommender.recommendByMutual(id, k);
-                if (recs.empty()) std::cout << "No recommendations.\n";
-                else for (auto &p : recs) std::cout << "User " << p.first << " (score=" << p.second << ")\n";
+                if (recs.empty())
+                    std::cout << "No recommendations found.\n";
+                else {
+                    std::cout << "\nTop " << k << " Recommendations (Mutual-based):\n";
+                    for (auto &p : recs)
+                        std::cout << "User " << p.first << " (mutuals=" << p.second << ")\n";
+                }
                 break;
             }
-            case 4: { // Recommend weighted
+
+            case 6: { // Recommend Weighted (Mutual + Interests)
                 int id, k;
                 std::cout << "Enter user ID and top K: ";
                 std::cin >> id >> k;
-                auto weightFn = [&](int cand, int mutual)->double {
-                    return mutual * (1.0 + 0.01 * cand);
-                };
-                auto recs = recommender.recommendWeighted(id, k, weightFn);
-                if (recs.empty()) std::cout << "No recommendations.\n";
-                else for (auto &p : recs) std::cout << "User " << p.first << " (score=" << p.second << ")\n";
+
+                auto recs = recommender.recommendWeighted(id, k, nullptr);
+                if (recs.empty())
+                    std::cout << "No recommendations found.\n";
+                else {
+                    std::cout << "\nTop " << k << " Recommendations (Weighted Hybrid):\n";
+                    for (auto &p : recs)
+                        std::cout << "User " << p.first << " (score=" << p.second << ")\n";
+                }
                 break;
             }
-            case 5: { // Save
+
+            case 7: { // Save Network
                 std::string fn;
                 std::cout << "Enter filename: ";
                 std::cin >> fn;
-                if (persistence.saveToFile(fn)) std::cout << "Saved to " << fn << "\n";
-                else std::cout << "Save failed.\n";
+                if (persistence.saveToFile(fn))
+                    std::cout << "Saved to " << fn << "\n";
+                else
+                    std::cout << "Save failed.\n";
                 break;
             }
-            case 6: { // Load
+
+            case 8: { // Load Network
                 std::string fn;
                 std::cout << "Enter filename: ";
                 std::cin >> fn;
                 if (persistence.loadFromFile(fn)) {
                     persistence.rebuildNameIndex();
                     tools.rebuildTrieFromGraph();
-                    std::cout << "Loaded " << fn << "\n";
-                } else std::cout << "Load failed.\n";
+                    std::cout << "Loaded " << fn << " successfully.\n";
+                } else
+                    std::cout << "Load failed.\n";
                 break;
             }
-            case 7: { // Communities
+
+            case 9: { // Show Communities
                 auto comps = algos.connectedComponents();
                 for (size_t i = 0; i < comps.size(); ++i) {
                     std::cout << "Community " << i + 1 << ": ";
@@ -112,49 +162,58 @@ int main() {
                 }
                 break;
             }
-            case 8: { // Shortest Path
+
+            case 10: { // Shortest Path
                 int a, b;
                 std::cout << "Enter source and destination IDs: ";
                 std::cin >> a >> b;
                 auto path = algos.shortestPath(a, b);
-                if (path.empty()) std::cout << "No path found.\n";
+                if (path.empty())
+                    std::cout << "No path found.\n";
                 else {
-                    for (size_t i = 0; i < path.size(); ++i) {
+                    std::cout << "Shortest Path: ";
+                    for (size_t i = 0; i < path.size(); ++i)
                         std::cout << path[i] << (i + 1 < path.size() ? " -> " : "\n");
-                    }
                 }
                 break;
             }
-            case 9: { // Export DOT
+
+            case 11: { // Export DOT
                 std::string fn;
                 std::cout << "Enter filename: ";
                 std::cin >> fn;
-                if (tools.exportToDot(fn)) std::cout << "DOT exported to " << fn << "\n";
-                else std::cout << "Export failed.\n";
+                if (tools.exportToDot(fn))
+                    std::cout << "DOT exported to " << fn << "\n";
+                else
+                    std::cout << "Export failed.\n";
                 break;
             }
-            case 10: { // Suggest prefix
-                std::string prefix; int k;
+
+            case 12: { // Suggest Prefix
+                std::string prefix;
+                int k;
                 std::cout << "Enter prefix and top K: ";
                 std::cin >> prefix >> k;
                 auto sug = tools.suggestByPrefix(prefix, k);
-                if (sug.empty()) std::cout << "No suggestions.\n";
-                else for (int id : sug) std::cout << id << " : " << graph.getUser(id)->name << "\n";
+                if (sug.empty())
+                    std::cout << "No suggestions.\n";
+                else
+                    for (int id : sug)
+                        std::cout << id << " : " << graph.getUser(id)->name << "\n";
                 break;
             }
-            case 11: { // Print user
+
+            case 13: { // Print User Info
                 int id;
                 std::cout << "Enter user ID: ";
                 std::cin >> id;
                 graph.printUser(id);
+                graph.printInterests(id);
                 break;
             }
-            case 12: { // Help
-                printMenu();
-                break;
-            }
+
             default:
-                std::cout << "Invalid choice! Try again.\n";
+                std::cout << "Invalid choice! Please try again.\n";
         }
     }
 

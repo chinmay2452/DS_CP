@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Profile</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="app-header">
+    <h1>User Profile</h1>
+    <p class="subtitle">Details and Recommendations</p>
+  </header>
+
+  <main class="container">
+    <section class="grid">
+      <div class="card">
+        <h2>User Info</h2>
+        <div class="card-grid">
+          <div class="card-item">
+            <h3>Profile</h3>
+            <pre id="outUserInfo" class="output"></pre>
+          </div>
+          <div class="card-item">
+            <h3>Friends</h3>
+            <pre id="outFriends" class="output"></pre>
+          </div>
+          <div class="card-item">
+            <h3>Interests</h3>
+            <pre id="outInterests" class="output"></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Recommendations</h2>
+        <div class="card-grid">
+          <div class="card-item">
+            <h3>Mutual (Top 5)</h3>
+            <pre id="outProfileRecMutual" class="output"></pre>
+          </div>
+          <div class="card-item">
+            <h3>Weighted (Top 5)</h3>
+            <pre id="outProfileRecWeighted" class="output"></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/static/main.js"></script>
+  <script>
+    fetchUser();
+    recommendFromProfile();
+  </script>
+</body>
+</html>

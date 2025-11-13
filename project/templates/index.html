@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Friends Network — Dashboard</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div id="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <h1>Friends Network</h1>
+        <small>Visual frontend for C++ social graph</small>
+      </div>
+
+      <nav class="nav">
+        <button data-section="users" class="nav-btn active">Users</button>
+        <button data-section="friends" class="nav-btn">Friends</button>
+        <button data-section="interests" class="nav-btn">Interests</button>
+        <button data-section="recommend" class="nav-btn">Recommendations</button>
+        <button data-section="network" class="nav-btn">Network</button>
+        <button data-section="tools" class="nav-btn">Tools</button>
+        <button data-section="misc" class="nav-btn">Misc</button>
+      </nav>
+
+      <div class="footer">
+        <button id="btn-list-users" class="ghost">Refresh users</button>
+        <div id="status">Server: <span id="server-status">checking...</span></div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <!-- USERS -->
+      <section id="section-users" class="panel">
+        <h2>Users</h2>
+        <div class="row">
+          <div class="card">
+            <h3>Add User</h3>
+            <input id="add_user_name" placeholder="username" />
+            <div class="row-btn">
+              <button onclick="addUser()">Add</button>
+            </div>
+            <pre id="add_user_result" class="out"></pre>
+          </div>
+
+          <div class="card">
+            <h3>Add User (with ID)</h3>
+            <input id="add_with_id_name" placeholder="name" />
+            <input id="add_with_id_id" placeholder="id (int)" />
+            <div class="row-btn">
+              <button onclick="addUserWithId()">Add</button>
+            </div>
+            <pre id="add_with_id_result" class="out"></pre>
+          </div>
+
+          <div class="card">
+            <h3>Remove User</h3>
+            <input id="remove_user_id" placeholder="user id" />
+            <div class="row-btn">
+              <button onclick="removeUser()">Remove</button>
+            </div>
+            <pre id="remove_user_result" class="out"></pre>
+          </div>
+        </div>
+
+        <div class="card full">
+          <h3>All Users</h3>
+          <div class="toolbar">
+            <button onclick="listUsers()">List</button>
+            <input id="view_user_id" placeholder="open profile id" style="width:120px"/>
+            <button onclick="viewUser()">Open profile</button>
+          </div>
+          <pre id="list_users_result" class="out"></pre>
+        </div>
+      </section>
+
+      <!-- FRIENDS -->
+      <section id="section-friends" class="panel hidden">
+        <h2>Friends</h2>
+        <div class="row">
+          <div class="card">
+            <h3>Add Friendship</h3>
+            <input id="add_friend_a" placeholder="user A id" />
+            <input id="add_friend_b" placeholder="user B id" />
+            <div class="row-btn"><button onclick="addFriend()">Add</button></div>
+            <pre id="add_friend_result" class="out"></pre>
+          </div>
+
+          <div class="card">
+            <h3>Remove Friendship</h3>
+            <input id="remove_friend_a" placeholder="user A id" />
+            <input id="remove_friend_b" placeholder="user B id" />
+            <div class="row-btn"><button onclick="removeFriend()">Remove</button></div>
+            <pre id="remove_friend_result" class="out"></pre>
+          </div>
+
+          <div class="card">
+            <h3>Shortest Path</h3>
+            <input id="spath_a" placeholder="from id" />
+            <input id="spath_b" placeholder="to id" />
+            <div class="row-btn"><button onclick="shortestPath()">Find</button></div>
+            <pre id="spath_result" class="out"></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- INTERESTS -->
+      <section id="section-interests" class="panel hidden">
+        <h2>Interests</h2>
+        <div class="row">
+          <div class="card">
+            <h3>Add Interests</h3>
+            <input id="add_interests_id" placeholder="user id" />
+            <input id="add_interests_list" placeholder="comma-separated" />
+            <div class="row-btn"><button onclick="addInterests()">Add</button></div>
+            <pre id="add_interests_result" class="out"></pre>
+          </div>
+
+          <div class="card">
+            <h3>Get Interests</h3>
+            <input id="get_interests_id" placeholder="user id" />
+            <div class="row-btn"><button onclick="getInterests()">Get</button></div>
+            <pre id="get_interests_result" class="out"></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- RECOMMENDATIONS -->
+      <section id="section-recommend" class="panel hidden">
+        <h2>Recommendations</h2>
+        <div class="row">
+          <div class="card">
+            <h3>Mutual-based</h3>
+            <input id="rec_mutual_id" placeholder="user id" />
+            <input id="rec_mutual_k" placeholder="k (default 5)" />
+            <div class="row-btn"><button onclick="recommendMutual()">Run</button></div>
+            <pre id="rec_mutual_result" class="out"></pre>
+          </div>
+
+          <div class="card">
+            <h3>Weighted (mutual + interests)</h3>
+            <input id="rec_weight_id" placeholder="user id" />
+            <input id="rec_weight_k" placeholder="k (default 5)" />
+            <div class="row-btn"><button onclick="recommendWeighted()">Run</button></div>
+            <pre id="rec_weight_result" class="out"></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- NETWORK -->
+      <section id="section-network" class="panel hidden">
+        <h2>Network</h2>
+        <div class="row">
+          <div class="card">
+            <h3>Save / Load</h3>
+            <input id="save_filename" placeholder="filename (network.dat)" />
+            <div class="row-btn"><button onclick="saveNetwork()">Save</button></div>
+            <pre id="save_result" class="out"></pre>
+
+            <hr/>
+
+            <input id="load_filename" placeholder="filename (network.dat)" />
+            <div class="row-btn"><button onclick="loadNetwork()">Load</button></div>
+            <pre id="load_result" class="out"></pre>
+          </div>
+
+          <div class="card">
+            <h3>Communities</h3>
+            <div class="row-btn"><button onclick="communities()">Find</button></div>
+            <pre id="communities_result" class="out"></pre>
+          </div>
+
+          <div class="card">
+            <h3>Export DOT</h3>
+            <input id="dot_filename" placeholder="graph.dot" />
+            <div class="row-btn">
+              <button onclick="exportDot()">Export</button>
+            </div>
+            <pre id="dot_result" class="out"></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- TOOLS / MISC -->
+      <section id="section-tools" class="panel hidden">
+        <h2>Tools & Misc</h2>
+        <div class="row">
+          <div class="card">
+            <h3>Suggest Username</h3>
+            <input id="suggest_prefix" placeholder="prefix" />
+            <input id="suggest_k" placeholder="k" />
+            <div class="row-btn"><button onclick="suggest()">Suggest</button></div>
+            <pre id="suggest_result" class="out"></pre>
+          </div>
+
+          <div class="card">
+            <h3>View User Profile</h3>
+            <input id="profile_id_input" placeholder="user id" />
+            <div class="row-btn"><button onclick="openProfile()">Open</button></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="section-misc" class="panel hidden">
+        <h2>Debug / Raw</h2>
+        <div class="card full">
+          <h3>Raw Server Response</h3>
+          <pre id="raw_response" class="out"></pre>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // small router: show/hide panels
+    document.addEventListener('DOMContentLoaded', () => {
+      const nav = document.querySelectorAll('.nav-btn');
+      nav.forEach(b => b.addEventListener('click', e => {
+        nav.forEach(x => x.classList.remove('active'));
+        b.classList.add('active');
+        const sec = b.dataset.section;
+        document.querySelectorAll('.panel').forEach(p => p.classList.add('hidden'));
+        document.getElementById('section-' + sec).classList.remove('hidden');
+      }));
+
+      // server health
+      fetch('/api/health').then(r => r.json()).then(j => {
+        document.getElementById('server-status').textContent = j.status || 'ok';
+      }).catch(_ => {
+        document.getElementById('server-status').textContent = 'down';
+      });
+
+      // refresh users button
+      document.getElementById('btn-list-users').addEventListener('click', listUsers);
+    });
+  </script>
+
+  <script src="{{ url_for('static', filename='main.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+USERS 19
+1|chinmay|ai,coding,robotics,games
+2|karan|travel,food,photography
+3|punyesh|coding,chess,music
+4|amber|movies,fitness,reading
+5|narayani|yoga,books,painting
+6|radhika|music,ai,dance
+7|shalvi|ai,art,design
+8|laukika|photography,travel
+9|sarvesh|chess,fitness,games
+10|pratham|robotics,hardware,coding
+11|neha|dance,music,art
+12|rohan|coding,ai,hardware
+13|mira|books,travel,painting
+14|dev|ai,gaming,design
+15|aarya|music,fitness,reading
+16|mehul|coding,ai,hardware
+17|ishika|books,art,painting
+18|tanya|design,music,art
+19|vishal|chess,games,movies
+EDGES
+1 3
+1 6
+1 16
+1 10
+1 12
+2 8
+2 13
+3 16
+3 10
+3 19
+4 5
+4 15
+4 9
+5 7
+5 17
+5 11
+6 10
+6 12
+6 14
+7 11
+7 18
+8 13
+9 19
+9 15
+10 16
+10 12
+11 18
+12 16
+12 14
+14 16
+14 19
+15 17
+17 18
+18 19

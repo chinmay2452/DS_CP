@@ -52,7 +52,9 @@ static std::string json_escape(const std::string &in) {
 // ---------------- basic ops ----------------
 extern "C" {
 
-int api_add_user(const char* name) {
+// NOTE: exported names use the underscore prefix to match Python loader
+
+int _api_add_user(const char* name) {
     if (!name) return -1;
     std::string sname(name);
     int id = G.addUser(sname);
@@ -62,7 +64,7 @@ int api_add_user(const char* name) {
     return id;
 }
 
-int api_add_user_with_id(const char* name, int fixedId) {
+int _api_add_user_with_id(const char* name, int fixedId) {
     if (!name) return -1;
     std::string sname(name);
     if (G.addUser(sname, fixedId)) {
@@ -73,15 +75,15 @@ int api_add_user_with_id(const char* name, int fixedId) {
     return -1;
 }
 
-bool api_add_friend(int a, int b) {
+bool _api_add_friend(int a, int b) {
     return G.addFriend(a, b);
 }
 
-bool api_remove_friend(int a, int b) {
+bool _api_remove_friend(int a, int b) {
     return G.removeFriend(a, b);
 }
 
-bool api_remove_user(int id) {
+bool _api_remove_user(int id) {
     bool ok = G.removeUser(id);
     if (ok) {
         P.rebuildNameIndex();
@@ -91,7 +93,7 @@ bool api_remove_user(int id) {
 }
 
 // ---------------- interests ----------------
-bool api_add_interests(int id, const char* csv) {
+bool _api_add_interests(int id, const char* csv) {
     if (!csv) return false;
     // split by comma
     std::string s(csv);
@@ -109,7 +111,7 @@ bool api_add_interests(int id, const char* csv) {
     return true;
 }
 
-char* api_get_user_interests(int id) {
+char* _api_get_user_interests(int id) {
     const User* u = G.getUser(id);
     if (!u) return cstrdup("null");
     std::string out = "[";
@@ -125,7 +127,7 @@ char* api_get_user_interests(int id) {
 
 // ---------------- queries / algorithms ----------------
 
-char* api_list_all_users() {
+char* _api_list_all_users() {
     auto ids = G.listAllUsers();
     std::ostringstream oss;
     oss << "[";
@@ -144,7 +146,7 @@ char* api_list_all_users() {
     return cstrdup(oss.str());
 }
 
-char* api_print_user_info(int id) {
+char* _api_print_user_info(int id) {
     const User* u = G.getUser(id);
     if (!u) return cstrdup("null");
     std::ostringstream oss;
@@ -172,7 +174,7 @@ char* api_print_user_info(int id) {
     return cstrdup(oss.str());
 }
 
-char* api_recommend_mutual(int userId, int topK) {
+char* _api_recommend_mutual(int userId, int topK) {
     std::ostringstream oss;
     auto recs = R.recommendByMutual(userId, topK);
     oss << "[";
@@ -194,7 +196,7 @@ char* api_recommend_mutual(int userId, int topK) {
     return cstrdup(oss.str());
 }
 
-char* api_recommend_weighted(int userId, int topK) {
+char* _api_recommend_weighted(int userId, int topK) {
     std::ostringstream oss;
     auto recs = R.recommendWeighted(userId, topK, nullptr);
     const User* target = G.getUser(userId);
@@ -236,7 +238,7 @@ char* api_recommend_weighted(int userId, int topK) {
     return cstrdup(oss.str());
 }
 
-char* api_shortest_path(int src, int dst) {
+char* _api_shortest_path(int src, int dst) {
     auto path = A.shortestPath(src, dst);
     std::ostringstream oss;
     oss << "{ \"path\": [";
@@ -248,7 +250,7 @@ char* api_shortest_path(int src, int dst) {
     return cstrdup(oss.str());
 }
 
-char* api_connected_components() {
+char* _api_connected_components() {
     auto comps = A.connectedComponents();
     std::ostringstream oss;
     oss << "[";
@@ -265,7 +267,7 @@ char* api_connected_components() {
     return cstrdup(oss.str());
 }
 
-char* api_suggest_prefix(const char* prefix, int k) {
+char* _api_suggest_prefix(const char* prefix, int k) {
     if (!prefix) return cstrdup("[]");
     auto v = T.suggestByPrefix(std::string(prefix), k);
     std::ostringstream oss;
@@ -286,12 +288,12 @@ char* api_suggest_prefix(const char* prefix, int k) {
 }
 
 // ---------------- persistence ----------------
-bool api_save_network(const char* filename) {
+bool _api_save_network(const char* filename) {
     if (!filename) return false;
     return P.saveToFile(std::string(filename));
 }
 
-bool api_load_network(const char* filename) {
+bool _api_load_network(const char* filename) {
     if (!filename) return false;
     bool ok = P.loadFromFile(std::string(filename));
     if (ok) {
@@ -302,7 +304,7 @@ bool api_load_network(const char* filename) {
 }
 
 // free helper
-void api_free_string(char* s) {
+void _api_free_string(char* s) {
     if (!s) return;
     std::free(s);
 }

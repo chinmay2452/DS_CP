@@ -1,34 +1,31 @@
-USERS 20
-1|chinmay|games,robotics,coding,ai
-2|karan|photography,food,travel
-3|punyesh|music,chess,coding
-4|amber|reading,fitness,movies
-5|narayani|painting,books,yoga
-6|radhika|dance,ai,music
-7|shalvi|design,art,ai
-8|laukika|travel,photography
-9|sarvesh|games,fitness,chess
-10|pratham|coding,hardware,robotics
-11|neha|art,music,dance
-12|rohan|hardware,ai,coding
-13|mira|painting,travel,books
-14|dev|design,gaming,ai
-15|aarya|reading,fitness,music
-16|mehul|hardware,ai,coding
-17|ishika|painting,art,books
-18|tanya|art,music,design
-19|vishal|movies,games,chess
-20|sarthak|travel,coding,ai
+USERS 19
+1|chinmay|ai,coding,robotics,games
+2|karan|travel,food,photography
+3|punyesh|coding,chess,music
+4|amber|movies,fitness,reading
+5|narayani|yoga,books,painting
+6|radhika|music,ai,dance
+7|shalvi|ai,art,design
+8|laukika|photography,travel
+9|sarvesh|chess,fitness,games
+10|pratham|robotics,hardware,coding
+11|neha|dance,music,art
+12|rohan|coding,ai,hardware
+13|mira|books,travel,painting
+14|dev|ai,gaming,design
+15|aarya|music,fitness,reading
+16|mehul|coding,ai,hardware
+17|ishika|books,art,painting
+18|tanya|design,music,art
+19|vishal|chess,games,movies
 EDGES
 1 3
 1 6
 1 16
 1 10
 1 12
-1 19
 2 8
 2 13
-2 20
 3 16
 3 10
 3 19
@@ -44,20 +41,15 @@ EDGES
 7 11
 7 18
 8 13
-8 20
 9 19
 9 15
 10 16
 10 12
-10 20
 11 18
 12 16
 12 14
-13 20
 14 16
 14 19
 15 17
-16 20
 17 18
 18 19
-19 20
